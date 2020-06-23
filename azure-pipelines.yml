@@ -98,6 +98,7 @@ stages:
             artifact: drop
 
 - stage: 'Test'
+
   displayName: 'Deploy to the test environment'
   dependsOn: Dev
   #condition: eq(variables['Build.Reason'], 'Schedule')
@@ -106,6 +107,23 @@ stages:
     pool:
       vmImage: 'ubuntu-18.04'
     environment: test
+    variables:
+    - group: 'Release'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - download: current
+            artifact: drop
+
+- stage: 'Staging'
+  displayName: 'Deploy to the staging environment'
+  dependsOn: Test
+  jobs:
+  - deployment: Deploy
+    pool:
+      vmImage: 'ubuntu-18.04'
+    environment: staging
     variables:
     - group: 'Release'
     strategy:
